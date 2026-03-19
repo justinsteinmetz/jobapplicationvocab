@@ -353,27 +353,12 @@
 </div>
 
 <!-- ══════════════════════════════════════════
-     SCREEN 1 — VOCAB CARDS
+     SCREEN 1 — MATCHING (now first)
 ════════════════════════════════════════════ -->
 <div class="screen" id="screen-1">
-  <div class="label">Round 1 · 4 min</div>
-  <h2>Know the words.<br>Click to check.</h2>
-  <p>These are the words and phrases you need. Tap each card to see the meaning. Remember one good example sentence for each.</p>
-
-  <div class="vocab-grid" id="vocab-grid"></div>
-
-  <hr class="divider">
-  <p style="font-size:0.85rem;">Ready? The quiz uses these words.</p>
-  <button class="btn" onclick="go(2)">Round 2 →</button>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 2 — MATCHING
-════════════════════════════════════════════ -->
-<div class="screen" id="screen-2">
-  <div class="label">Round 2 · 5 min</div>
+  <div class="label">Round 1 · 5 min</div>
   <h2>Match the word<br>to its definition.</h2>
-  <p>Tap a word on the left, then the correct definition on the right.</p>
+  <p>Tap a word on the left, then the correct definition on the right. Don't worry if you don't know them yet — have a go.</p>
 
   <div class="match-area">
     <div class="match-col" id="match-terms">
@@ -387,7 +372,21 @@
   <div class="feedback" id="match-feedback"></div>
   <div id="match-progress" style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:10px;"></div>
 
-  <button class="btn" id="match-next-btn" style="display:none" onclick="go(3)">Round 3 →</button>
+  <button class="btn" id="match-next-btn" style="display:none" onclick="go(2)">Round 2 →</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — VOCAB CARDS (now second)
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-2">
+  <div class="label">Round 2 · 4 min</div>
+  <h2>Check what<br>you missed.</h2>
+  <p>Tap each card to see the full definition and an example. Focus on the ones you weren't sure about.</p>
+
+  <div class="vocab-grid" id="vocab-grid"></div>
+
+  <hr class="divider">
+  <button class="btn" onclick="go(3)">Round 3 →</button>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -422,13 +421,20 @@
   <div class="task-card">
     <div class="label">Speaking task · pairs · 4 min</div>
     <h3>One minute to sell yourself.</h3>
-    <p>You're applying for one of these volunteer roles. Your partner is the interviewer.</p>
+    <p>Pick a role: <strong style="color:white">applicant</strong> or <strong style="color:white">interviewer</strong>. Applicant chooses one of these volunteer jobs:</p>
     <ul>
-      <li>Park &amp; Aquarium Volunteer (cleaning tanks, guiding visitors)</li>
-      <li>Mascot Marathon Volunteer (wearing a costume, representing the charity)</li>
-      <li>Gravestone Cleaner (outdoor conservation work)</li>
+      <li>Park &amp; Aquarium Volunteer</li>
+      <li>Mascot Marathon Volunteer</li>
+      <li>Gravestone Cleaner</li>
     </ul>
-    <p style="margin-top:14px;">Use at least <strong style="color:white">four</strong> of the words from today. Your partner listens and ticks them off.</p>
+    <p style="margin-top:14px;"><strong style="color:white">Applicant:</strong> use at least four words from today in your answers.</p>
+    <p><strong style="color:white">Interviewer:</strong> ask these questions — tick off each target word you hear.</p>
+    <ul>
+      <li>Why are you applying for this position?</li>
+      <li>What are your main strengths?</li>
+      <li>Do you have any relevant qualifications or work experience?</li>
+      <li>Do you have any questions for us?</li>
+    </ul>
   </div>
 
   <div class="label" style="margin-top:24px;">Phrase bank</div>
@@ -451,12 +457,6 @@ const VOCAB = [
     pos: "noun",
     def: "A document listing your education, skills, work experience, and interests.",
     example: "Make sure your CV is no longer than two pages."
-  },
-  {
-    term: "personal statement",
-    pos: "noun phrase",
-    def: "A short paragraph in a CV or application explaining who you are and why you want the job.",
-    example: "His personal statement mentioned his love of working in teams."
   },
   {
     term: "qualifications",
@@ -483,10 +483,10 @@ const VOCAB = [
     example: "All applicants must submit a CV and cover letter."
   },
   {
-    term: "to enclose",
-    pos: "verb (formal)",
-    def: "To include something with a letter, especially a document.",
-    example: "I have enclosed my CV for your consideration."
+    term: "strengths",
+    pos: "noun (plural)",
+    def: "The skills or qualities that make you good at something.",
+    example: "Communication and teamwork are two of my main strengths."
   },
   {
     term: "I am writing to apply for…",
@@ -499,18 +499,6 @@ const VOCAB = [
     pos: "closing phrase",
     def: "A polite phrase used at the end of a formal letter.",
     example: "Thank you for your time. I look forward to hearing from you."
-  },
-  {
-    term: "strengths",
-    pos: "noun (plural)",
-    def: "The skills or qualities that make you good at something.",
-    example: "Communication and teamwork are two of my main strengths."
-  },
-  {
-    term: "to proofread",
-    pos: "verb",
-    def: "To read a piece of writing carefully to find and correct mistakes.",
-    example: "Always proofread your letter before sending it."
   }
 ];
 
@@ -549,10 +537,10 @@ const QUIZ = [
     options: ["strengths", "qualifications", "interests", "experiences"]
   },
   {
-    sentence: "The letter began: '___ the position of park volunteer advertised on your website.'",
+    sentence: "She started her letter with: '___ the mascot volunteer position I saw on your website.'",
     blank: "___",
     answer: "I am writing to apply for",
-    options: ["I am writing to apply for", "I look forward to hearing from you about", "I have always wanted to apply for", "I would like to enquire about"]
+    options: ["I am writing to apply for", "I am writing about", "I would like to know about", "I am interested in"]
   },
   {
     sentence: "She spent two weeks doing ___ at a local environmental charity.",
@@ -567,10 +555,10 @@ const QUIZ = [
     options: ["proofread", "revise", "rewrite", "correct"]
   },
   {
-    sentence: "The ___ at the end of a formal letter is: 'I look forward to hearing from you.'",
+    sentence: "At the end of his letter he wrote: 'I ___ hearing from you.'",
     blank: "___",
-    answer: "closing phrase",
-    options: ["closing phrase", "personal statement", "salutation", "conclusion"]
+    answer: "look forward to",
+    options: ["look forward to", "am looking at", "hope for", "am waiting for"]
   }
 ];
 
@@ -587,8 +575,8 @@ function go(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + n).classList.add('active');
   document.getElementById('progress-fill').style.width = (n / 4 * 100) + '%';
-  if (n === 1) buildVocab();
-  if (n === 2) buildMatch();
+  if (n === 1) buildMatch();
+  if (n === 2) buildVocab();
   if (n === 3) { currentQ = 0; quizScore = 0; renderQuestion(); }
   if (n === 4) buildResults();
   window.scrollTo(0, 0);
