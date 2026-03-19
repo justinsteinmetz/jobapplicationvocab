@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting the Job — Vocab Sprint</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,500;0,700;1,300&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --red: #c0392b;
+    --gold: #b8860b;
+    --muted: #6b6560;
+    --success: #2c7a4b;
+    --fail: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 36px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    border-bottom: 4px solid var(--red);
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+  }
+  header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: #aaa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  #progress-track {
+    height: 5px;
+    background: #333;
+  }
+  #progress-fill {
+    height: 100%;
+    background: var(--red);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; padding: 36px; max-width: 900px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  /* ─── SECTION LABELS ─── */
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.9rem;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+  }
+
+  p { font-size: 1rem; line-height: 1.65; color: var(--muted); margin-bottom: 14px; }
+
+  /* ─── VOCAB CARDS GRID ─── */
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .vocab-card {
+    background: white;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .vocab-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--red);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+    transform-origin: bottom;
+  }
+  .vocab-card:hover::before,
+  .vocab-card.open::before { transform: scaleY(1); }
+  .vocab-card:hover { border-color: var(--red); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+
+  .vocab-term {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .vocab-pos {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .vocab-def {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.5;
+    display: none;
+  }
+  .vocab-card.open .vocab-def { display: block; }
+  .vocab-example {
+    font-style: italic;
+    font-size: 0.83rem;
+    color: #999;
+    margin-top: 6px;
+    border-top: 1px solid #eee;
+    padding-top: 6px;
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s;
+    margin-top: 20px;
+  }
+  .btn:hover { background: var(--red); transform: translateY(-1px); }
+  .btn:active { transform: translateY(1px); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    margin-left: 10px;
+  }
+  .btn.secondary:hover { background: var(--ink); color: var(--paper); }
+
+  /* ─── QUIZ ─── */
+  .question-box {
+    background: white;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 28px 30px;
+    margin-bottom: 24px;
+    min-height: 160px;
+  }
+  .question-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+  .question-text .blank {
+    display: inline-block;
+    border-bottom: 2.5px solid var(--ink);
+    min-width: 140px;
+    color: transparent;
+    vertical-align: bottom;
+    user-select: none;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    background: var(--cream);
+    border: 1.5px solid #ccc;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 4px;
+    transition: all 0.15s;
+    color: var(--ink);
+  }
+  .option-btn:hover:not(:disabled) { background: white; border-color: var(--ink); }
+  .option-btn.correct { background: #d4edda; border-color: var(--success); color: var(--success); font-weight: 700; }
+  .option-btn.wrong { background: #fce4e4; border-color: var(--fail); color: var(--fail); }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    min-height: 20px;
+  }
+  .feedback.ok { color: var(--success); }
+  .feedback.no { color: var(--fail); }
+
+  /* ─── SCORE / RESULTS ─── */
+  .score-display {
+    font-family: 'DM Serif Display', serif;
+    font-size: 5rem;
+    color: var(--red);
+    line-height: 1;
+    margin: 20px 0 4px;
+  }
+  .score-label { font-size: 0.85rem; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ─── MATCH TASK ─── */
+  .match-area { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .match-col h4 { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .match-item {
+    background: white;
+    border: 1.5px solid #ddd;
+    border-radius: 4px;
+    padding: 11px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+    user-select: none;
+  }
+  .match-item:hover { border-color: var(--ink); }
+  .match-item.selected { border-color: var(--red); background: #fff5f5; }
+  .match-item.matched { border-color: var(--success); background: #d4edda; color: var(--success); cursor: default; }
+  .match-item.wrong-flash { border-color: var(--fail); background: #fce4e4; }
+
+  /* ─── TASK CARD ─── */
+  .task-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 30px 34px;
+    border-radius: 4px;
+    margin: 20px 0;
+  }
+  .task-card .label { color: var(--red); }
+  .task-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 14px; }
+  .task-card p { color: #ccc; margin-bottom: 10px; }
+  .task-card ul { color: #ccc; padding-left: 22px; }
+  .task-card ul li { margin-bottom: 7px; font-size: 0.95rem; line-height: 1.5; }
+
+  /* TIMER */
+  #timer-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: #eee;
+    z-index: 100;
+  }
+  #timer-fill {
+    height: 100%;
+    background: var(--red);
+    transition: width 1s linear;
+  }
+
+  /* ─── PHRASE BOX ─── */
+  .phrase-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .phrase-chip {
+    background: var(--cream);
+    border: 1.5px solid #ccc;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+  }
+
+  .divider {
+    border: none;
+    border-top: 1.5px solid #ddd;
+    margin: 28px 0;
+  }
+
+  .nav-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+  }
+  .dot.done { background: var(--success); }
+  .dot.current { background: var(--red); }
+</style>
+</head>
+<body>
+
+<div id="timer-bar"><div id="timer-fill" style="width:100%"></div></div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<header>
+  <h1>Getting the Job</h1>
+  <span>Vocabulary Sprint · 9a</span>
+</header>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 0 — INTRO
+════════════════════════════════════════════ -->
+<div class="screen active" id="screen-0">
+  <div class="label">Today's lesson</div>
+  <h2>You've got<br><em>10 minutes</em> to apply.</h2>
+  <p>Three rounds. No prep time. Just like the real thing.</p>
+
+  <div class="nav-dots">
+    <div class="dot current"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <button class="btn" onclick="go(1)">Start →</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 — VOCAB CARDS
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-1">
+  <div class="label">Round 1 · 4 min</div>
+  <h2>Know the words.<br>Click to check.</h2>
+  <p>These are the words and phrases you need. Tap each card to see the meaning. Remember one good example sentence for each.</p>
+
+  <div class="vocab-grid" id="vocab-grid"></div>
+
+  <hr class="divider">
+  <p style="font-size:0.85rem;">Ready? The quiz uses these words.</p>
+  <button class="btn" onclick="go(2)">Round 2 →</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — MATCHING
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-2">
+  <div class="label">Round 2 · 5 min</div>
+  <h2>Match the word<br>to its definition.</h2>
+  <p>Tap a word on the left, then the correct definition on the right.</p>
+
+  <div class="match-area">
+    <div class="match-col" id="match-terms">
+      <h4>Word / Phrase</h4>
+    </div>
+    <div class="match-col" id="match-defs">
+      <h4>Meaning</h4>
+    </div>
+  </div>
+
+  <div class="feedback" id="match-feedback"></div>
+  <div id="match-progress" style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:10px;"></div>
+
+  <button class="btn" id="match-next-btn" style="display:none" onclick="go(3)">Round 3 →</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 — GAP FILL QUIZ
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-3">
+  <div class="label">Round 3 · 6 min</div>
+  <h2>Gap fill.<br>Four choices.</h2>
+  <p id="quiz-counter" style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);"></p>
+
+  <div class="question-box" id="q-box">
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+  </div>
+
+  <button class="btn" id="quiz-next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 — RESULTS + SPEAKING TASK
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-4">
+  <div class="label">Done</div>
+  <h2>Quiz complete.</h2>
+
+  <div class="score-display" id="final-score">0/8</div>
+  <div class="score-label">gap fill score</div>
+
+  <hr class="divider">
+
+  <div class="task-card">
+    <div class="label">Speaking task · pairs · 4 min</div>
+    <h3>One minute to sell yourself.</h3>
+    <p>You're applying for one of these volunteer roles. Your partner is the interviewer.</p>
+    <ul>
+      <li>Park &amp; Aquarium Volunteer (cleaning tanks, guiding visitors)</li>
+      <li>Mascot Marathon Volunteer (wearing a costume, representing the charity)</li>
+      <li>Gravestone Cleaner (outdoor conservation work)</li>
+    </ul>
+    <p style="margin-top:14px;">Use at least <strong style="color:white">four</strong> of the words from today. Your partner listens and ticks them off.</p>
+  </div>
+
+  <div class="label" style="margin-top:24px;">Phrase bank</div>
+  <div class="phrase-bank" id="phrase-bank"></div>
+
+  <button class="btn secondary" onclick="go(1)">Review words</button>
+</div>
+
+<script>
+// ══════════════ DATA ══════════════
+const VOCAB = [
+  {
+    term: "letter of application",
+    pos: "noun phrase",
+    def: "A formal letter you write when applying for a job or volunteer position.",
+    example: "She sent a letter of application with her CV."
+  },
+  {
+    term: "CV (curriculum vitae)",
+    pos: "noun",
+    def: "A document listing your education, skills, work experience, and interests.",
+    example: "Make sure your CV is no longer than two pages."
+  },
+  {
+    term: "personal statement",
+    pos: "noun phrase",
+    def: "A short paragraph in a CV or application explaining who you are and why you want the job.",
+    example: "His personal statement mentioned his love of working in teams."
+  },
+  {
+    term: "qualifications",
+    pos: "noun (plural)",
+    def: "Certificates, exams, or courses you have successfully completed.",
+    example: "She listed her school qualifications on the form."
+  },
+  {
+    term: "work experience",
+    pos: "noun phrase",
+    def: "Time spent working in a company or organisation, often unpaid, to learn skills.",
+    example: "He did two weeks of work experience at a local newspaper."
+  },
+  {
+    term: "volunteer",
+    pos: "noun / verb",
+    def: "A person who works without pay, or the act of doing such work.",
+    example: "I volunteered at an animal shelter every Saturday."
+  },
+  {
+    term: "applicant",
+    pos: "noun",
+    def: "A person who officially applies for something, such as a job.",
+    example: "All applicants must submit a CV and cover letter."
+  },
+  {
+    term: "to enclose",
+    pos: "verb (formal)",
+    def: "To include something with a letter, especially a document.",
+    example: "I have enclosed my CV for your consideration."
+  },
+  {
+    term: "I am writing to apply for…",
+    pos: "opening phrase",
+    def: "A standard formal phrase to begin a letter of application.",
+    example: "I am writing to apply for the position of summer intern."
+  },
+  {
+    term: "I look forward to hearing from you.",
+    pos: "closing phrase",
+    def: "A polite phrase used at the end of a formal letter.",
+    example: "Thank you for your time. I look forward to hearing from you."
+  },
+  {
+    term: "strengths",
+    pos: "noun (plural)",
+    def: "The skills or qualities that make you good at something.",
+    example: "Communication and teamwork are two of my main strengths."
+  },
+  {
+    term: "to proofread",
+    pos: "verb",
+    def: "To read a piece of writing carefully to find and correct mistakes.",
+    example: "Always proofread your letter before sending it."
+  }
+];
+
+const MATCH_SET = [
+  { term: "applicant", def: "someone who formally applies for a job or position" },
+  { term: "to enclose", def: "to include a document with your letter" },
+  { term: "personal statement", def: "a short paragraph saying who you are and why you want the role" },
+  { term: "to proofread", def: "to check a text carefully for errors before sending it" },
+  { term: "qualifications", def: "completed exams or courses that prove your skills" },
+  { term: "work experience", def: "time spent in a workplace to learn, often unpaid" },
+];
+
+const QUIZ = [
+  {
+    sentence: "She ___ her CV to the letter and sent everything by email.",
+    blank: "___",
+    answer: "enclosed",
+    options: ["enclosed", "volunteered", "proofread", "applied"]
+  },
+  {
+    sentence: "All ___ must submit a completed form before Friday.",
+    blank: "___",
+    answer: "applicants",
+    options: ["applicants", "volunteers", "interviewers", "employers"]
+  },
+  {
+    sentence: "His ___ listed his Abitur results and a felt-craft course he'd completed.",
+    blank: "___",
+    answer: "CV",
+    options: ["CV", "personal statement", "letter of application", "work experience"]
+  },
+  {
+    sentence: "One of my main ___ is the ability to stay calm under pressure.",
+    blank: "___",
+    answer: "strengths",
+    options: ["strengths", "qualifications", "interests", "experiences"]
+  },
+  {
+    sentence: "The letter began: '___ the position of park volunteer advertised on your website.'",
+    blank: "___",
+    answer: "I am writing to apply for",
+    options: ["I am writing to apply for", "I look forward to hearing from you about", "I have always wanted to apply for", "I would like to enquire about"]
+  },
+  {
+    sentence: "She spent two weeks doing ___ at a local environmental charity.",
+    blank: "___",
+    answer: "work experience",
+    options: ["work experience", "volunteering", "qualifications", "a placement"]
+  },
+  {
+    sentence: "Always ___ your application before you submit it — a spelling mistake can cost you the job.",
+    blank: "___",
+    answer: "proofread",
+    options: ["proofread", "revise", "rewrite", "correct"]
+  },
+  {
+    sentence: "The ___ at the end of a formal letter is: 'I look forward to hearing from you.'",
+    blank: "___",
+    answer: "closing phrase",
+    options: ["closing phrase", "personal statement", "salutation", "conclusion"]
+  }
+];
+
+// ══════════════ STATE ══════════════
+let quizScore = 0;
+let currentQ = 0;
+let answered = false;
+let matchSelected = null;
+let matchedCount = 0;
+const matchedTerms = new Set();
+
+// ══════════════ NAVIGATION ══════════════
+function go(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + n).classList.add('active');
+  document.getElementById('progress-fill').style.width = (n / 4 * 100) + '%';
+  if (n === 1) buildVocab();
+  if (n === 2) buildMatch();
+  if (n === 3) { currentQ = 0; quizScore = 0; renderQuestion(); }
+  if (n === 4) buildResults();
+  window.scrollTo(0, 0);
+}
+
+// ══════════════ VOCAB CARDS ══════════════
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  grid.innerHTML = '';
+  VOCAB.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.innerHTML = `
+      <div class="vocab-term">${v.term}</div>
+      <div class="vocab-pos">${v.pos}</div>
+      <div class="vocab-def">
+        ${v.def}
+        <div class="vocab-example">"${v.example}"</div>
+      </div>`;
+    card.addEventListener('click', () => card.classList.toggle('open'));
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════ MATCHING ══════════════
+function buildMatch() {
+  matchSelected = null;
+  matchedCount = 0;
+  matchedTerms.clear();
+
+  const termsCol = document.getElementById('match-terms');
+  const defsCol = document.getElementById('match-defs');
+  termsCol.innerHTML = '<h4>Word / Phrase</h4>';
+  defsCol.innerHTML = '<h4>Meaning</h4>';
+
+  // shuffle defs independently
+  const shuffledDefs = [...MATCH_SET].sort(() => Math.random() - 0.5);
+
+  MATCH_SET.forEach(item => {
+    const t = document.createElement('div');
+    t.className = 'match-item';
+    t.textContent = item.term;
+    t.dataset.term = item.term;
+    t.addEventListener('click', () => selectTerm(t));
+    termsCol.appendChild(t);
+  });
+
+  shuffledDefs.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'match-item';
+    d.textContent = item.def;
+    d.dataset.term = item.term;
+    d.addEventListener('click', () => selectDef(d));
+    defsCol.appendChild(d);
+  });
+
+  updateMatchProgress();
+}
+
+function selectTerm(el) {
+  if (el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-terms .match-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelected = el;
+}
+
+function selectDef(el) {
+  if (!matchSelected) return;
+  if (el.classList.contains('matched')) return;
+
+  if (matchSelected.dataset.term === el.dataset.term) {
+    // correct
+    matchSelected.classList.remove('selected');
+    matchSelected.classList.add('matched');
+    el.classList.add('matched');
+    matchedCount++;
+    matchSelected = null;
+    document.getElementById('match-feedback').textContent = '✓ Correct.';
+    document.getElementById('match-feedback').className = 'feedback ok';
+    updateMatchProgress();
+    if (matchedCount === MATCH_SET.length) {
+      document.getElementById('match-next-btn').style.display = 'inline-block';
+    }
+  } else {
+    // wrong
+    el.classList.add('wrong-flash');
+    document.getElementById('match-feedback').textContent = '✗ Not quite — try again.';
+    document.getElementById('match-feedback').className = 'feedback no';
+    setTimeout(() => el.classList.remove('wrong-flash'), 600);
+  }
+}
+
+function updateMatchProgress() {
+  document.getElementById('match-progress').textContent = `${matchedCount} / ${MATCH_SET.length} matched`;
+}
+
+// ══════════════ QUIZ ══════════════
+function renderQuestion() {
+  if (currentQ >= QUIZ.length) { go(4); return; }
+  answered = false;
+  const q = QUIZ[currentQ];
+  document.getElementById('quiz-counter').textContent = `Question ${currentQ + 1} of ${QUIZ.length}`;
+  document.getElementById('q-feedback').textContent = '';
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+
+  // render sentence with styled blank
+  const displaySentence = q.sentence.replace(q.blank,
+    `<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`);
+  document.getElementById('q-text').innerHTML = displaySentence;
+
+  const optionsEl = document.getElementById('q-options');
+  optionsEl.innerHTML = '';
+  const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => checkAnswer(btn, opt, q.answer, q.blank, q.sentence));
+    optionsEl.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, chosen, correct, blank, sentence) {
+  if (answered) return;
+  answered = true;
+  const fb = document.getElementById('q-feedback');
+  const allBtns = document.querySelectorAll('.option-btn');
+
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correct) b.classList.add('correct');
+  });
+
+  if (chosen === correct) {
+    quizScore++;
+    btn.classList.add('correct');
+    fb.textContent = '✓ Correct.';
+    fb.className = 'feedback ok';
+    // fill the blank
+    document.getElementById('q-text').innerHTML =
+      sentence.replace(blank, `<strong style="color:var(--success)">${correct}</strong>`);
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = `✗  The answer is: "${correct}"`;
+    fb.className = 'feedback no';
+    document.getElementById('q-text').innerHTML =
+      sentence.replace(blank, `<strong style="color:var(--success)">${correct}</strong>`);
+  }
+
+  currentQ++;
+  document.getElementById('quiz-next-btn').style.display = 'inline-block';
+  document.getElementById('quiz-next-btn').textContent = currentQ < QUIZ.length ? 'Next →' : 'See results →';
+}
+
+function nextQuestion() { renderQuestion(); }
+
+// ══════════════ RESULTS ══════════════
+function buildResults() {
+  document.getElementById('final-score').textContent = `${quizScore}/${QUIZ.length}`;
+  const pb = document.getElementById('phrase-bank');
+  pb.innerHTML = '';
+  const phrases = [
+    "I am writing to apply for…",
+    "I have enclosed my CV.",
+    "I look forward to hearing from you.",
+    "One of my main strengths is…",
+    "I have experience in…",
+    "I would love to volunteer because…",
+    "Please let me know if…",
+    "I am a team player."
+  ];
+  phrases.forEach(p => {
+    const chip = document.createElement('span');
+    chip.className = 'phrase-chip';
+    chip.textContent = p;
+    pb.appendChild(chip);
+  });
+}
+</script>
+</body>
+</html>
